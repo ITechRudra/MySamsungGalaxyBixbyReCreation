@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- visor -->
+    <path
+        android:fillColor="#FF0B1030"
+        android:pathData="M42,34h24a12,12 0,0 1,12 12v16a12,12 0,0 1,-12 12h-24a12,12 0,0 1,-12 -12v-16a12,12 0,0 1,12 -12z" />
+    <!-- emblem stem -->
+    <path
+        android:fillColor="#59FFFFFF"
+        android:pathData="M50.5,41h4a2,2 0,0 1,2 2v19h-8v-19a2,2 0,0 1,2 -2z" />
+    <!-- emblem bowl -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#59FFFFFF"
+        android:strokeWidth="4.5"
+        android:pathData="M58,57m-6.5,0a6.5,6.5 0,1 1,13 0a6.5,6.5 0,1 1,-13 0" />
+    <!-- eyes -->
+    <path
+        android:fillColor="#FF3CF2E3"
+        android:pathData="M44.5,48h0a3.5,3.5 0,0 1,3.5 3.5v4a3.5,3.5 0,0 1,-3.5 3.5h0a3.5,3.5 0,0 1,-3.5 -3.5v-4a3.5,3.5 0,0 1,3.5 -3.5z" />
+    <path
+        android:fillColor="#FF3CF2E3"
+        android:pathData="M63.5,48h0a3.5,3.5 0,0 1,3.5 3.5v4a3.5,3.5 0,0 1,-3.5 3.5h0a3.5,3.5 0,0 1,-3.5 -3.5v-4a3.5,3.5 0,0 1,3.5 -3.5z" />
+</vector>

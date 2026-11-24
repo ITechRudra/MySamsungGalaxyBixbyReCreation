@@ -1,0 +1,6 @@
+<resources>
+    <color name="bixi_night">#FF090C1F</color>
+    <color name="bixi_blue">#FF4F8CFF</color>
+    <color name="bixi_purple">#FF8E5CF7</color>
+    <color name="bixi_cyan">#FF3CF2E3</color>
+</resources>

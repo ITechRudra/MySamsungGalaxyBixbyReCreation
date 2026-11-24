@@ -1,0 +1,76 @@
+name: Build Bixi APK
+
+on:
+  push:
+    branches: [ main, "claude/**" ]
+    paths-ignore: [ "**.md" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bixi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.BIXI_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.BIXI_KEYSTORE_PASSWORD }}
+        run: |
+          KS="$RUNNER_TEMP/bixi.jks"
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$KS"
+            PASS="$KEYSTORE_PASSWORD"
+            echo "Signing with your saved key (updates install over the old app)."
+          else
+            PASS="bixi-$(openssl rand -hex 12)"
+            keytool -genkeypair -keystore "$KS" -storepass "$PASS" -keypass "$PASS" \
+              -alias bixi -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Bixi" -noprompt
+            echo "::warning::No BIXI_KEYSTORE_BASE64 secret, so this build uses a one-off key. To update, uninstall the old Bixi first. See README > Seamless updates."
+          fi
+          echo "::add-mask::$PASS"
+          echo "BIXI_KEYSTORE=$KS" >> "$GITHUB_ENV"
+          echo "BIXI_KEYSTORE_PASSWORD=$PASS" >> "$GITHUB_ENV"
+
+      - name: Run tests and build the APK
+        run: ./gradlew --no-daemon testDebugUnitTest assembleRelease
+
+      - name: Name the APK
+        run: cp app/build/outputs/apk/release/app-release.apk Bixi.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bixi-apk
+          path: Bixi.apk
+
+      - name: Publish the download link (release "bixi-latest")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete bixi-latest --yes --cleanup-tag || true
+          gh release create bixi-latest Bixi.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Bixi: latest build" \
+            --notes "Built from ${GITHUB_REF_NAME} @ ${GITHUB_SHA::7}.
+
+          **Install on your Samsung phone**
+          1. Download **Bixi.apk** below and open it. Allow \"Install unknown apps\" for your browser or My Files when asked.
+          2. Open **Bixi** and follow the setup checklist on the Home tab.
+          3. In Accessibility, open *Installed apps* → **Bixi** → switch it on. If the switch is greyed out: *Settings → Apps → Bixi → ⋮ → Allow restricted settings*, then try again.
+
+          See the README for every command."
